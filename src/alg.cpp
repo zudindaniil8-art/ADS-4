@@ -27,11 +27,11 @@ int countPairs2(int *arr, int len, int value) {
         int right_val = arr[right];
         int left_count = 0;
         int right_count = 0;
-        while (left <= right && arr[left] == left_val) {
+        while (left < len && arr[left] == left_val) {
           ++left_count;
           ++left;
         }
-        while (left <= right && arr[right] == right_val) {
+        while (right >= 0 && arr[right] == right_val) {
           ++right_count;
           --right;
         }
@@ -63,37 +63,41 @@ int binary_search(int *arr, int left, int right, int target) {
 int countPairs3(int *arr, int len, int value) {
   int count = 0;
   for (int i = 0; i < len; ++i) {
-    if (i > 0 && arr[i] == arr[i - 1]) {
-      continue;
-    }
     int target = value - arr[i];
     if (target < arr[i]) {
       continue;
     }
     int pos = binary_search(arr, i + 1, len - 1, target);
     if (pos != -1) {
-      int left_count = 1;
-      int right_count = 1;
-      int j = i + 1;
-      while (j < len && arr[j] == arr[i]) {
-        ++left_count;
-        ++j;
-      }
-      j = pos;
-      while (j - 1 > i && arr[j - 1] == target) {
-        ++right_count;
-        --j;
-      }
-      j = pos + 1;
-      while (j < len && arr[j] == target) {
-        ++right_count;
-        ++j;
-      }
       if (arr[i] == target) {
-        count += left_count * (left_count - 1) / 2;
-        i += left_count - 1;
+        int n = 1;
+        int j = i + 1;
+        while (j < len && arr[j] == target) {
+          ++n;
+          ++j;
+        }
+        count += n * (n - 1) / 2;
+        i = j - 1;
       } else {
+        int left_count = 1;
+        int right_count = 1;
+        int j = i + 1;
+        while (j < len && arr[j] == arr[i]) {
+          ++left_count;
+          ++j;
+        }
+        j = pos;
+        while (j - 1 > i && arr[j - 1] == target) {
+          ++right_count;
+          --j;
+        }
+        j = pos + 1;
+        while (j < len && arr[j] == target) {
+          ++right_count;
+          ++j;
+        }
         count += left_count * right_count;
+        i += left_count - 1;
       }
     }
   }
