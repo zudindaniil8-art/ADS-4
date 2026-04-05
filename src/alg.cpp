@@ -46,6 +46,20 @@ int countPairs2(int *arr, int len, int value) {
   return count;
 }
 
+int binary_search(int *arr, int left, int right, int target) {
+  while (left <= right) {
+    int mid = left + (right - left) / 2;
+    if (arr[mid] == target) {
+      return mid;
+    } else if (arr[mid] < target) {
+      left = mid + 1;
+    } else {
+      right = mid - 1;
+    }
+  }
+  return -1;
+}
+
 int countPairs3(int *arr, int len, int value) {
   int count = 0;
   for (int i = 0; i < len; ++i) {
@@ -53,41 +67,35 @@ int countPairs3(int *arr, int len, int value) {
       continue;
     }
     int target = value - arr[i];
-    int left = i + 1;
-    int right = len - 1;
-    while (left <= right) {
-      int mid = left + (right - left) / 2;
-      if (arr[mid] == target) {
-        if (arr[i] == target) {
-          int n = 0;
-          for (int k = i; k < len && arr[k] == target; ++k) {
-            ++n;
-          }
-          count += n * (n - 1) / 2;
-          i = i + n - 1;
-        } else {
-          int left_count = 1;
-          int right_count = 1;
-          int j = mid - 1;
-          while (j > i && arr[j] == target) {
-            ++right_count;
-            --j;
-          }
-          j = mid + 1;
-          while (j < len && arr[j] == target) {
-            ++right_count;
-            ++j;
-          }
-          count += left_count * right_count;
-        }
-        break;
-      } else if (arr[mid] < target) {
-        left = mid + 1;
+    if (target < arr[i]) {
+      continue;
+    }
+    int pos = binary_search(arr, i + 1, len - 1, target);
+    if (pos != -1) {
+      int left_count = 1;
+      int right_count = 1;
+      int j = i + 1;
+      while (j < len && arr[j] == arr[i]) {
+        ++left_count;
+        ++j;
+      }
+      j = pos;
+      while (j - 1 > i && arr[j - 1] == target) {
+        ++right_count;
+        --j;
+      }
+      j = pos + 1;
+      while (j < len && arr[j] == target) {
+        ++right_count;
+        ++j;
+      }
+      if (arr[i] == target) {
+        count += left_count * (left_count - 1) / 2;
+        i += left_count - 1;
       } else {
-        right = mid - 1;
+        count += left_count * right_count;
       }
     }
   }
   return count;
 }
-```
