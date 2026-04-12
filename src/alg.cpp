@@ -1,90 +1,125 @@
 // Copyright 2021 NNTU-CS
 
-int countPairs1(int *arr, int len, int value) {
-  int count = 0;
-  for (int i = 0; i < len; ++i) {
-    for (int j = i + 1; j < len; ++j) {
-      if (arr[i] + arr[j] == value) {
-        ++count;
-      }
-    }
-  }
-  return count;
-}
+int countPairs1(int *array, int length, int target) {
+    int counter = 0;
 
-int countPairs2(int *arr, int len, int value) {
-  int count = 0;
-  int left = 0;
-  int right = len - 1;
-  while (left < right) {
-    int sum = arr[left] + arr[right];
-    if (sum == value) {
-      int leftVal = arr[left];
-      int rightVal = arr[right];
-      if (leftVal == rightVal) {
-        int n = right - left + 1;
-        count += n * (n - 1) / 2;
-        break;
-      }
-      int leftCount = 0;
-      int rightCount = 0;
-      while (left <= right && arr[left] == leftVal) {
-        ++leftCount;
-        ++left;
-      }
-      while (left <= right && arr[right] == rightVal) {
-        ++rightCount;
-        --right;
-      }
-      count += leftCount * rightCount;
-    } else if (sum < value) {
-      ++left;
-    } else {
-      --right;
-    }
-  }
-  return count;
-}
-
-int countPairs3(int *arr, int len, int value) {
-  int count = 0;
-  for (int i = 0; i < len; ++i) {
-    int target = value - arr[i];
-    // Бинарный поиск только для элементов после i
-    int low = i + 1;
-    int high = len - 1;
-    int first = -1;
-    // Находим первое вхождение target
-    while (low <= high) {
-      int mid = low + (high - low) / 2;
-      if (arr[mid] == target) {
-        first = mid;
-        high = mid - 1;
-      } else if (arr[mid] < target) {
-        low = mid + 1;
-      } else {
-        high = mid - 1;
-      }
-    }
-    if (first != -1) {
-      // Находим последнее вхождение target
-      low = first;
-      high = len - 1;
-      int last = first;
-      while (low <= high) {
-        int mid = low + (high - low) / 2;
-        if (arr[mid] == target) {
-          last = mid;
-          low = mid + 1;
-        } else if (arr[mid] < target) {
-          low = mid + 1;
-        } else {
-          high = mid - 1;
+    for (int i = 0; i < length; ++i) {
+        for (int j = i + 1; j < length; ++j) {
+            int currentSum = array[i] + array[j];
+            if (currentSum == target) {
+                counter += 1;
+            }
         }
-      }
-      count += (last - first + 1);
-      i = last; // Пропускаем обработанные элементы
     }
-  }
-  return count;
+    return counter;
+}
+
+int countPairs2(int *array, int length, int target) {
+    int left = 0;
+    int right = length - 1;
+    int counter = 0;
+
+    while (left < right) {
+        int currentSum = array[left] + array[right];
+
+        if (currentSum == target) {
+            if (array[left] == array[right]) {
+                int amount = right - left + 1;
+                counter += amount * (amount - 1) / 2;
+                break;
+            }
+
+            int leftValue = array[left];
+            int rightValue = array[right];
+
+            int leftCount = 0;
+            while (left <= right && array[left] == leftValue) {
+                ++leftCount;
+                ++left;
+            }
+
+            int rightCount = 0;
+            while (right >= left && array[right] == rightValue) {
+                ++rightCount;
+                --right;
+            }
+
+            counter += leftCount * rightCount;
+
+        } else if (currentSum < target) {
+            ++left;
+        } else {
+            --right;
+        }
+    }
+
+    return counter;
+}
+
+int countPairs3(int *array, int length, int target) {
+    int counter = 0;
+
+    for (int i = 0; i < length - 1; ++i) {
+        if (i > 0 && array[i] == array[i - 1]) {
+            continue;
+        }
+
+        int needed = target - array[i];
+        if (needed < array[i]) {
+            break;
+        }
+
+        int low = i + 1;
+        int high = length - 1;
+        int first = -1;
+
+        while (low <= high) {
+            int middle = low + (high - low) / 2;
+
+            if (array[middle] == needed) {
+                first = middle;
+                high = middle - 1;
+            } else if (array[middle] < needed) {
+                low = middle + 1;
+            } else {
+                high = middle - 1;
+            }
+        }
+
+        if (first == -1) {
+            continue;
+        }
+
+        int last = first;
+        low = first;
+        high = length - 1;
+
+        while (low <= high) {
+            int middle = low + (high - low) / 2;
+
+            if (array[middle] == needed) {
+                last = middle;
+                low = middle + 1;
+            } else if (array[middle] < needed) {
+                low = middle + 1;
+            } else {
+                high = middle - 1;
+            }
+        }
+
+        if (array[i] == needed) {
+            int segmentLength = last - i + 1;
+            counter += segmentLength * (segmentLength - 1) / 2;
+            break;
+        }
+
+        int leftCount = 1;
+        while (i + leftCount < length && array[i + leftCount] == array[i]) {
+            ++leftCount;
+        }
+
+        counter += leftCount * (last - first + 1);
+    }
+
+    return counter;
 }
